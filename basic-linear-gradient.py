@@ -30,5 +30,5 @@ for i in range(epochs):
     guess_w.grad.zero_() #Sets both gradients to zero for cycle repeat
     guess_b.grad.zero_() 
 
-print(loss)
+print(loss) #should go to zero
 
