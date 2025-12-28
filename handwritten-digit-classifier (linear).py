@@ -4,11 +4,13 @@
 import torch
 import torchvision
 
+
 epoch = 20  # number of learning cycles
 learning_rate = 0.001  # learning rate
 batch_size = 64  # number of samples per batch
 
-print(f'Using device: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU"}')
+torch.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f'Using device: {torch.device}')
 
 # Define a simple feedforward neural network for handwritten digit classification
 class DigitClassifier(torch.nn.Module):
@@ -54,11 +56,14 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch
 
 # Initialize model, loss function, and optimizer #housekeeping
 model = DigitClassifier()
+model.to(torch.device) 
 loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), learning_rate)
 
 for e in range(epoch):
     for images, labels in train_loader:
+        images = images.to(torch.device)
+        labels = labels.to(torch.device)
         #Images is the question, labels are the true answers
         optimizer.zero_grad()  # Zero the gradients
         outputs = model(images)  # Forward pass
@@ -74,7 +79,9 @@ correct = 0
 total = 0
 with torch.no_grad(): # No need to compute gradients during evaluation
     for images, labels in test_loader:
-        outputs = model(images)
+        images = images.to(torch.device)
+        labels = labels.to(torch.device)
+        outputs = model(images)     
         _, predicted = torch.max(outputs.data, 1) # The _ gets the max value, predicted gets the index of max value. Discard _.
         total += labels.size(0) # Total number of labels #which here is batch size
         correct += (predicted == labels).sum().item()  #predicted == labels gives a tensor of T/F, sum() counts Trues, .item() converts to int
